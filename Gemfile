@@ -10,6 +10,10 @@ group :app do
     gem 'sprockets'
     gem 'sprockets-helpers'
 
+    # websocket
+    gem 'eventmachine'
+    gem 'em-websocket', '0.3.8'
+
     # utils
     gem 'browser'
 
@@ -37,6 +41,6 @@ group :development do
 end
 
 group :test do
-
+    gem "rspec"
 end
 

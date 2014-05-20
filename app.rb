@@ -1,12 +1,13 @@
 require 'bundler/setup'
 Bundler.require :app
+require File.expand_path('../lib/ws/sinatra-websocket', __FILE__)
 
 class App < Sinatra::Base
     Bundler.require environment
     require 'sinatra/cookies'
 
     configure do
-        set :root, File.expand_path('..', __FILE__)
+        set :root, File.dirname(__FILE__)
         set :sprockets, Sprockets::Environment.new(root)
 
         set :assets_prefix, 'assets'
@@ -22,9 +23,17 @@ class App < Sinatra::Base
         end
 
         %w(javascript stylesheet image font).each do |type|
-            sprockets.append_path root + "/assets/#{type}"
+            sprockets.append_path root + "/app/#{type}"
             sprockets.append_path root + "/vendor/#{type}"
+            sprockets.append_path root + "/lib/#{type}"
         end
+
+        %w(compass blueprint).each do |name|
+            sprockets.append_path Compass.base_directory + "/framworks/#{name}/stylesheets"
+            sprockets.append_path Compass.base_directory + "/framworks/#{name}/stylesheets"
+        end
+
+        Compass.configuration.images_path = root + '/app/image'
     end
 
     configure :development do
@@ -32,6 +41,10 @@ class App < Sinatra::Base
 
         use BetterErrors::Middleware
         BetterErrors.application_root = root
+    end
+
+    configure :test do
+
     end
 
     configure :production do
@@ -46,4 +59,24 @@ class App < Sinatra::Base
         erb :index
     end
 
+    set :sockets, []
+    get '/io' do
+        if request.websocket?
+            request.websocket do |ws|
+                ws.onopen do
+                    ws.send("Hello World!")
+                    settings.sockets << ws
+                end
+                ws.onmessage do |msg|
+                    EM.next_tick { settings.sockets.each{|s| s.send(msg) } }
+                end
+                ws.onclose do
+                    warn("websocket closed")
+                    settings.sockets.delete(ws)
+                end
+            end
+        else
+            erb :io
+        end
+    end
 end
