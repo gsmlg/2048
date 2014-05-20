@@ -1,0 +1,32 @@
+$bg: "#3f4e1a";
+
+html {
+    min-height: 100%;
+    background-color: #E0BA01;
+}
+
+body {
+    min-height: 100%;
+    text-align: center;
+}
+
+.title1 {
+    font-size: 48px;
+    font-weight: bold;
+}
+
+.status {
+    font-size: 30px;
+}
+
+.playground {
+    margin-top: 24px auto;
+}
+
+#canvas {
+    width: 600px;
+    height: 600px;
+    background-color: #BCAEA1;
+    box-sizing: content-box;
+    border: 15px #909090 inset;
+}
